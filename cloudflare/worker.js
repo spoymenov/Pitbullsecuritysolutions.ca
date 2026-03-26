@@ -27,7 +27,7 @@ function inferFocus(message = '', pageContext = {}) {
   if (text.includes('automation') || text.includes('monitoring')) {
     return 'automation-monitoring';
   }
-  if (text.includes('where') || text.includes('area') || text.includes('newmarket') || text.includes('aurora')) {
+  if (text.includes('where') || text.includes('area') || text.includes('newmarket') || text.includes('aurora') || text.includes('toronto') || text.includes('gta') || text.includes('markham') || text.includes('vaughan')) {
     return 'service-areas';
   }
 
@@ -42,7 +42,7 @@ function serviceHint(focus) {
     intercom: 'Focus on visitor entry workflows: call stations, remote unlock, and integration with access/camera systems.',
     'structured-wiring': 'Focus on low-voltage infrastructure: Cat6/Cat6A runs, rack/patch planning, and clean expansion-ready cabling.',
     'automation-monitoring': 'Focus on integrated workflows: linking access + alarms + cameras into one practical operating flow.',
-    'service-areas': 'Focus on coverage in Newmarket, Aurora, Richmond Hill, East Gwillimbury, Bradford, Georgina/Keswick, and Vaughan.',
+    'service-areas': 'Focus on coverage in York Region core areas (Newmarket, Aurora, Richmond Hill, East Gwillimbury, Bradford, Georgina/Keswick) and GTA project coverage (Vaughan, Markham, Toronto, Mississauga, Brampton).',
     general: 'Focus on quickly identifying the customer project and recommending a consultation path.'
   };
 
@@ -83,7 +83,7 @@ Business facts:
 - Phone: 888-963-5633
 - Email: info@pitbullsecuritysolutions.ca
 - Address: 925 Isaac Phillips Way, Newmarket, ON L3X 0M7
-- Service areas: Newmarket, Aurora, Richmond Hill, East Gwillimbury, Bradford, Georgina/Keswick, Vaughan
+- Service areas: York Region core (Newmarket, Aurora, Richmond Hill, East Gwillimbury, Bradford, Georgina/Keswick) + GTA project coverage (Vaughan, Markham, Toronto, Mississauga, Brampton)
 - Services: commercial access control, camera systems, alarm systems, intercom/door entry, structured low-voltage wiring, automation + live monitoring
 
 Style requirements (important):
