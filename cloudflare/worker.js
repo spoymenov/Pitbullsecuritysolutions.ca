@@ -59,8 +59,11 @@ async function callGemini({ env, model, systemPrompt, contents }) {
       system_instruction: { parts: [{ text: systemPrompt }] },
       contents,
       generationConfig: {
-        temperature: 0.15,
-        maxOutputTokens: 700
+        temperature: 0.1,
+        maxOutputTokens: Number(env.GEMINI_MAX_OUTPUT_TOKENS || 1200)
+      },
+      thinkingConfig: {
+        thinkingBudget: Number(env.GEMINI_THINKING_BUDGET || 8192)
       }
     })
   });
@@ -81,6 +84,16 @@ export default {
     }
 
     const url = new URL(request.url);
+    if (url.pathname === '/api/chat/health' && request.method === 'GET') {
+      return new Response(JSON.stringify({
+        ok: true,
+        provider: 'gemini',
+        primary_model: env.GEMINI_MODEL || 'gemini-2.5-pro',
+        fallback_model: env.GEMINI_FALLBACK_MODEL || 'gemini-2.5-flash',
+        thinking_budget: Number(env.GEMINI_THINKING_BUDGET || 8192)
+      }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     if (url.pathname !== '/api/chat') {
       return new Response('Not found', { status: 404, headers: corsHeaders });
     }
@@ -159,7 +172,7 @@ Guidance for this focus: ${hint}`;
       const text = extractGeminiText(data) ||
         'I can provide a practical Ontario-focused security recommendation for your site. Call 888-963-5633 or email info@pitbullsecuritysolutions.ca.';
 
-      return new Response(JSON.stringify({ reply: text, focus, model: usedModel }), {
+      return new Response(JSON.stringify({ reply: text, focus, model: usedModel, provider: 'gemini' }), {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });

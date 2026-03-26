@@ -37,6 +37,8 @@ cp cloudflare/wrangler.toml.example wrangler.toml
 The example includes:
 - `GEMINI_MODEL = "gemini-2.5-pro"`
 - `GEMINI_FALLBACK_MODEL = "gemini-2.5-flash"`
+- `GEMINI_THINKING_BUDGET = 8192`
+- `GEMINI_MAX_OUTPUT_TOKENS = 1200`
 - `ALLOWED_ORIGIN = "https://pitbullsecuritysolutions.ca"`
 
 ---
@@ -90,6 +92,37 @@ Then deploy site files.
 2. Ask cannabis-specific questions.
 3. Ask area coverage questions (York Region + GTA).
 4. Ask urgent human escalation question and verify CTA appears.
+
+---
+
+
+## 10) How to verify it is really using Gemini
+
+### A) Health check endpoint
+After deploy, run:
+```bash
+curl https://pitbull-chat-worker.<subdomain>.workers.dev/api/chat/health
+```
+You should see JSON with:
+- `provider: "gemini"`
+- `primary_model` and `fallback_model`
+- `thinking_budget`
+
+### B) Chat response check
+Send a test request:
+```bash
+curl -X POST https://pitbull-chat-worker.<subdomain>.workers.dev/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message":"I run a cannabis store in Markham. Give me a practical security plan.","history":[]}'
+```
+Response now includes:
+- `provider: "gemini"`
+- `model` used for that request
+
+### C) Increase reasoning depth
+If responses still feel too short, increase in `wrangler.toml`:
+- `GEMINI_THINKING_BUDGET` (e.g. 8192 -> 12288)
+- `GEMINI_MAX_OUTPUT_TOKENS` (e.g. 1200 -> 1600)
 
 ---
 
