@@ -1,10 +1,9 @@
 # Cloudflare AI Chat Setup (Pitbull Security Solutions Ltd.)
 
 ## Recommended model choice
-Use **OpenAI `gpt-4.1-mini`** for best balance of:
-- reasoning quality
-- fast response
-- low operating cost
+Use **OpenAI `gpt-5`** for strongest answer quality and reasoning depth.
+
+If `gpt-5` is not available in your account/region, set fallback to `gpt-4.1-mini`.
 
 ---
 
@@ -41,7 +40,9 @@ Paste your OpenAI key when prompted.
 
 Optional variables are already in `wrangler.toml`:
 - `ALLOWED_ORIGIN` (your production domain)
-- `OPENAI_MODEL` (`gpt-4.1-mini`)
+- `OPENAI_MODEL` (`gpt-5`)
+- `OPENAI_FALLBACK_MODEL` (`gpt-4.1-mini`)
+- `REASONING_EFFORT` (`high`)
 
 ---
 
@@ -122,6 +123,16 @@ Always include clear escalation in frontend and AI response:
 3. Ensure frontend sends `pageContext` (`path` + `title`) with each message.
 4. Ask targeted prompts like: "2-door office in Aurora, card + mobile, rough scope?"
 5. If output is still generic, lower temperature to `0.1` and tighten system prompt constraints further.
+
+---
+
+
+## 9) Reasoning quality tuning
+To make answers less generic and more "real-life consultative":
+- keep `OPENAI_MODEL=gpt-5`
+- keep `REASONING_EFFORT=high`
+- raise `max_output_tokens` in worker when you need deeper answers
+- keep a fallback model (`OPENAI_FALLBACK_MODEL`) for account compatibility
 
 ---
 

@@ -9,27 +9,13 @@ function buildCorsHeaders(env) {
 function inferFocus(message = '', pageContext = {}) {
   const text = `${message} ${pageContext?.path || ''} ${pageContext?.title || ''}`.toLowerCase();
 
-  if (text.includes('access') || text.includes('card') || text.includes('fob')) {
-    return 'access-control';
-  }
-  if (text.includes('camera') || text.includes('cctv') || text.includes('surveillance')) {
-    return 'camera-systems';
-  }
-  if (text.includes('alarm') || text.includes('intrusion')) {
-    return 'alarm-systems';
-  }
-  if (text.includes('intercom') || text.includes('door entry')) {
-    return 'intercom';
-  }
-  if (text.includes('wire') || text.includes('cat6') || text.includes('cable')) {
-    return 'structured-wiring';
-  }
-  if (text.includes('automation') || text.includes('monitoring')) {
-    return 'automation-monitoring';
-  }
-  if (text.includes('where') || text.includes('area') || text.includes('newmarket') || text.includes('aurora') || text.includes('toronto') || text.includes('gta') || text.includes('markham') || text.includes('vaughan')) {
-    return 'service-areas';
-  }
+  if (text.includes('access') || text.includes('card') || text.includes('fob')) return 'access-control';
+  if (text.includes('camera') || text.includes('cctv') || text.includes('surveillance')) return 'camera-systems';
+  if (text.includes('alarm') || text.includes('intrusion')) return 'alarm-systems';
+  if (text.includes('intercom') || text.includes('door entry')) return 'intercom';
+  if (text.includes('wire') || text.includes('cat6') || text.includes('cable')) return 'structured-wiring';
+  if (text.includes('automation') || text.includes('monitoring')) return 'automation-monitoring';
+  if (text.includes('where') || text.includes('area') || text.includes('newmarket') || text.includes('aurora') || text.includes('toronto') || text.includes('gta') || text.includes('markham') || text.includes('vaughan')) return 'service-areas';
 
   return 'general';
 }
@@ -42,11 +28,30 @@ function serviceHint(focus) {
     intercom: 'Focus on visitor entry workflows: call stations, remote unlock, and integration with access/camera systems.',
     'structured-wiring': 'Focus on low-voltage infrastructure: Cat6/Cat6A runs, rack/patch planning, and clean expansion-ready cabling.',
     'automation-monitoring': 'Focus on integrated workflows: linking access + alarms + cameras into one practical operating flow.',
-    'service-areas': 'Focus on coverage in York Region core areas (Newmarket, Aurora, Richmond Hill, East Gwillimbury, Bradford, Georgina/Keswick) and GTA project coverage (Vaughan, Markham, Toronto, Mississauga, Brampton).',
+    'service-areas': 'Focus on Ontario coverage in York Region core areas and GTA project coverage.',
     general: 'Focus on quickly identifying the customer project and recommending a consultation path.'
   };
 
   return hints[focus] || hints.general;
+}
+
+async function callModel({ env, conversation, model }) {
+  const response = await fetch('https://api.openai.com/v1/responses', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${env.OPENAI_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model,
+      input: conversation,
+      reasoning: { effort: env.REASONING_EFFORT || 'high' },
+      temperature: 0.15,
+      max_output_tokens: 420
+    })
+  });
+
+  return response;
 }
 
 export default {
@@ -86,13 +91,13 @@ Business facts:
 - Service areas: Ontario only, with York Region core (Newmarket, Aurora, Richmond Hill, East Gwillimbury, Bradford, Georgina/Keswick) + GTA project coverage (Vaughan, Markham, Toronto, Mississauga, Brampton)
 - Services: commercial access control, camera systems, alarm systems, intercom/door entry, structured low-voltage wiring, automation + live monitoring
 
-Style requirements (important):
-1) Do not be generic. Mention at least one concrete service detail tied to the user question.
-2) When relevant, reference a specific local area from Ontario list above.
-3) Keep it concise (2-4 short paragraphs or bullet points).
-4) Always end with a clear next step (site visit/consultation) + phone/email CTA.
-5) If user asks legal/fire-code/compliance questions, advise contacting a licensed professional and the Pitbull team.
-6) If user asks for urgent/human help, escalate immediately with phone + email only.
+Style requirements:
+1) Do not be generic. Provide concrete, practical recommendations tailored to the user scenario.
+2) Give a concise but complete answer in 4-8 bullets or short paragraphs.
+3) If data is missing, ask up to 2 clarifying questions.
+4) Include at least one next step and estimated scope factors (not fake prices).
+5) End with CTA: phone + email.
+6) Reference Ontario-local coverage when relevant.
 
 Current conversation focus: ${focus}
 Guidance for this focus: ${hint}`;
@@ -100,7 +105,7 @@ Guidance for this focus: ${hint}`;
       const safeHistory = Array.isArray(history)
         ? history
             .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
-            .slice(-8)
+            .slice(-10)
         : [];
 
       const conversation = [
@@ -112,19 +117,14 @@ Guidance for this focus: ${hint}`;
         }
       ];
 
-      const resp = await fetch('https://api.openai.com/v1/responses', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${env.OPENAI_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: env.OPENAI_MODEL || 'gpt-4.1-mini',
-          input: conversation,
-          temperature: 0.2,
-          max_output_tokens: 220
-        })
-      });
+      const primaryModel = env.OPENAI_MODEL || 'gpt-5';
+      const fallbackModel = env.OPENAI_FALLBACK_MODEL || 'gpt-4.1-mini';
+
+      let resp = await callModel({ env, conversation, model: primaryModel });
+
+      if (!resp.ok && primaryModel !== fallbackModel) {
+        resp = await callModel({ env, conversation, model: fallbackModel });
+      }
 
       if (!resp.ok) {
         const detail = await resp.text();
@@ -137,9 +137,9 @@ Guidance for this focus: ${hint}`;
       const data = await resp.json();
       const text =
         data?.output_text ||
-        'For your project, we can recommend a practical security scope and next steps. Call 888-963-5633 or email info@pitbullsecuritysolutions.ca to get a fast consultation.';
+        'I can provide a practical Ontario-focused security recommendation for your site. Call 888-963-5633 or email info@pitbullsecuritysolutions.ca.';
 
-      return new Response(JSON.stringify({ reply: text, focus }), {
+      return new Response(JSON.stringify({ reply: text, focus, model: primaryModel }), {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });

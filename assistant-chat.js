@@ -1,6 +1,8 @@
 (function () {
   const API_URL = "https://pitbull-chat-worker.spoymenov.workers.dev/api/chat";
 
+  const MIN_REPLY_MS = 1300;
+
   const business = {
     phone: "888-963-5633",
     phoneHref: "tel:8889635633",
@@ -17,7 +19,7 @@
     wiring: "Structured Cat6/Cat6A low-voltage wiring supports security performance and future expansion.",
     automation: "Automation connects access, alarms, and cameras into one practical workflow.",
     areas: "We serve Ontario projects in York Region + GTA: Newmarket, Aurora, Richmond Hill, East Gwillimbury, Bradford, Georgina/Keswick, Vaughan, Markham, Toronto, Mississauga, and Brampton.",
-    fallback: "I can help with services, pricing process, and coverage areas. If needed, I can connect you directly with Pitbull now."
+    fallback: "I can help with practical recommendations, scope factors, and Ontario service coverage. Share your property type and city for a more precise answer."
   };
 
   const root = document.createElement("div");
@@ -76,6 +78,7 @@
   }
 
   async function askAI(message) {
+    const startedAt = Date.now();
     const resp = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -87,6 +90,10 @@
     });
     if (!resp.ok) throw new Error("AI endpoint unavailable");
     const data = await resp.json();
+    const elapsed = Date.now() - startedAt;
+    if (elapsed < MIN_REPLY_MS) {
+      await new Promise((r) => setTimeout(r, MIN_REPLY_MS - elapsed));
+    }
     return data.reply || localFallback.fallback;
   }
 

@@ -6,4 +6,6 @@ preview_urls = false
 
 [vars]
 ALLOWED_ORIGIN = "https://pitbullsecuritysolutions.ca"
-OPENAI_MODEL = "gpt-4.1-mini"
+OPENAI_MODEL = "gpt-5"
+OPENAI_FALLBACK_MODEL = "gpt-4.1-mini"
+REASONING_EFFORT = "high"
