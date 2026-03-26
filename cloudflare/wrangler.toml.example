@@ -1,0 +1,7 @@
+name = "pitbull-chat-worker"
+main = "cloudflare/worker.js"
+compatibility_date = "2026-03-26"
+
+[vars]
+ALLOWED_ORIGIN = "https://pitbullsecuritysolutions.ca"
+OPENAI_MODEL = "gpt-4.1-mini"
