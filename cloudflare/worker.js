@@ -15,6 +15,7 @@ function inferFocus(message = '', pageContext = {}) {
   if (text.includes('intercom') || text.includes('door entry')) return 'intercom';
   if (text.includes('wire') || text.includes('cat6') || text.includes('cable')) return 'structured-wiring';
   if (text.includes('automation') || text.includes('monitoring')) return 'automation-monitoring';
+  if (text.includes('cannabis') || text.includes('dispensary') || text.includes('production facility') || text.includes('factory')) return 'cannabis-security';
   if (text.includes('where') || text.includes('area') || text.includes('newmarket') || text.includes('aurora') || text.includes('toronto') || text.includes('gta') || text.includes('markham') || text.includes('vaughan')) return 'service-areas';
 
   return 'general';
@@ -29,6 +30,7 @@ function serviceHint(focus) {
     'structured-wiring': 'Focus on low-voltage infrastructure: Cat6/Cat6A runs, rack/patch planning, and clean expansion-ready cabling.',
     'automation-monitoring': 'Focus on integrated workflows: linking access + alarms + cameras into one practical operating flow.',
     'service-areas': 'Focus on Ontario coverage in York Region core areas and GTA project coverage.',
+    'cannabis-security': 'Focus on cannabis stores, production warehouses, and factories: layered access, camera traceability, and alarm escalation.',
     general: 'Focus on quickly identifying the customer project and recommending a consultation path.'
   };
 
@@ -90,6 +92,7 @@ Business facts:
 - Address: 925 Isaac Phillips Way, Newmarket, ON L3X 0M7
 - Service areas: Ontario only, with York Region core (Newmarket, Aurora, Richmond Hill, East Gwillimbury, Bradford, Georgina/Keswick) + GTA project coverage (Vaughan, Markham, Toronto, Mississauga, Brampton)
 - Services: commercial access control, camera systems, alarm systems, intercom/door entry, structured low-voltage wiring, automation + live monitoring
+- Specialization: cannabis stores, production warehouses, and factories
 
 Style requirements:
 1) Do not be generic. Provide concrete, practical recommendations tailored to the user scenario.

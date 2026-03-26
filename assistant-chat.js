@@ -18,6 +18,7 @@
     intercom: "Intercom systems are integrated with access control and video verification for secure entry.",
     wiring: "Structured Cat6/Cat6A low-voltage wiring supports security performance and future expansion.",
     automation: "Automation connects access, alarms, and cameras into one practical workflow.",
+    cannabis: "We specialize in cannabis stores and production facilities with controlled zones, surveillance, and alert workflows.",
     areas: "We serve Ontario projects in York Region + GTA: Newmarket, Aurora, Richmond Hill, East Gwillimbury, Bradford, Georgina/Keswick, Vaughan, Markham, Toronto, Mississauga, and Brampton.",
     fallback: "I can help with practical recommendations, scope factors, and Ontario service coverage. Share your property type and city for a more precise answer."
   };
@@ -68,6 +69,7 @@
     if (t.includes("intercom") || t.includes("door entry")) return localFallback.intercom;
     if (t.includes("wire") || t.includes("cat6") || t.includes("cable")) return localFallback.wiring;
     if (t.includes("automation") || t.includes("monitoring")) return localFallback.automation;
+    if (t.includes("cannabis") || t.includes("dispensary") || t.includes("production")) return localFallback.cannabis;
     if (business.areas.some((a) => t.includes(a)) || t.includes("where") || t.includes("area")) return localFallback.areas;
     return localFallback.fallback;
   }
