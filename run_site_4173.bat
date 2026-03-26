@@ -39,9 +39,8 @@ pause
 exit /b 1
 
 :postserve
-echo [4/6] Optional: deploy Cloudflare Worker now? (Y/N)
-set /p DEPLOY_WORKER=
-if /I "%DEPLOY_WORKER%"=="Y" (
+echo [4/6] Auto mode: deploying Cloudflare Worker...
+if 1==1 (
   where wrangler >nul 2>nul
   if %errorlevel%==0 (
     wrangler deploy
@@ -50,9 +49,8 @@ if /I "%DEPLOY_WORKER%"=="Y" (
   )
 )
 
-echo [5/6] Optional: push local commits to GitHub now? (Y/N)
-set /p PUSH_NOW=
-if /I "%PUSH_NOW%"=="Y" (
+echo [5/6] Auto mode: pushing local commits to GitHub...
+if 1==1 (
   git push origin main
 )
 
