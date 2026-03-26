@@ -1,5 +1,5 @@
 (function () {
-  const API_URL = "https://pitbull-chat-worker.YOUR_SUBDOMAIN.workers.dev/api/chat"; // replace after deploy
+  const API_URL = "https://pitbull-chat-worker.spoymenov.workers.dev/api/chat";
 
   const business = {
     phone: "888-963-5633",

@@ -54,10 +54,23 @@ This outputs your worker URL (example):
 
 ---
 
+
+### Wrangler warning cleanup (recommended)
+Add these explicit settings in `wrangler.toml` to avoid default-behavior warnings:
+
+```toml
+workers_dev = true
+preview_urls = false
+```
+
+If you plan to serve the Worker only from a custom domain route, set `workers_dev = false` and add a `routes` config.
+
+---
+
 ## 5) Connect frontend chat to worker
 In `assistant-chat.js`, set:
 ```js
-const API_URL = "https://pitbull-chat-worker.<subdomain>.workers.dev/api/chat";
+const API_URL = "https://pitbull-chat-worker.spoymenov.workers.dev/api/chat";
 ```
 
 Then deploy your site update.
