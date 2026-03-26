@@ -79,7 +79,11 @@
     const resp = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message, history })
+      body: JSON.stringify({
+        message,
+        history,
+        pageContext: { path: window.location.pathname, title: document.title }
+      })
     });
     if (!resp.ok) throw new Error("AI endpoint unavailable");
     const data = await resp.json();

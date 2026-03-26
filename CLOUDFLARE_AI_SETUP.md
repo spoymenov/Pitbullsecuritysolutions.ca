@@ -115,5 +115,15 @@ Always include clear escalation in frontend and AI response:
 
 ---
 
+
+## 8) If answers still feel generic
+1. Confirm your site is using the current `assistant-chat.js` (hard refresh / cache-bust).
+2. Confirm the Worker is redeployed after prompt updates (`wrangler deploy`).
+3. Ensure frontend sends `pageContext` (`path` + `title`) with each message.
+4. Ask targeted prompts like: "2-door office in Aurora, card + mobile, rough scope?"
+5. If output is still generic, lower temperature to `0.1` and tighten system prompt constraints further.
+
+---
+
 ## Legal/safety note
 This assistant is for informational sales support only and should not provide legal, fire-code, or regulatory compliance advice.
