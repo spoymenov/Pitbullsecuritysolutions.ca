@@ -37,23 +37,39 @@ function serviceHint(focus) {
   return hints[focus] || hints.general;
 }
 
-async function callModel({ env, conversation, model }) {
-  const response = await fetch('https://api.openai.com/v1/responses', {
+function mapHistoryForGemini(history = []) {
+  if (!Array.isArray(history)) return [];
+
+  return history
+    .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
+    .slice(-10)
+    .map((m) => ({
+      role: m.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: m.content }]
+    }));
+}
+
+async function callGemini({ env, model, systemPrompt, contents }) {
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.GEMINI_API_KEY}`;
+
+  return fetch(endpoint, {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${env.OPENAI_API_KEY}`,
-      'Content-Type': 'application/json'
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model,
-      input: conversation,
-      reasoning: { effort: env.REASONING_EFFORT || 'high' },
-      temperature: 0.15,
-      max_output_tokens: 420
+      system_instruction: { parts: [{ text: systemPrompt }] },
+      contents,
+      generationConfig: {
+        temperature: 0.15,
+        maxOutputTokens: 700
+      }
     })
   });
+}
 
-  return response;
+function extractGeminiText(data) {
+  const parts = data?.candidates?.[0]?.content?.parts || [];
+  const text = parts.map((p) => p?.text || '').join('\n').trim();
+  return text;
 }
 
 export default {
@@ -82,6 +98,13 @@ export default {
         });
       }
 
+      if (!env.GEMINI_API_KEY) {
+        return new Response(JSON.stringify({ error: 'Missing GEMINI_API_KEY secret' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
       const focus = inferFocus(message, pageContext);
       const hint = serviceHint(focus);
 
@@ -105,28 +128,23 @@ Style requirements:
 Current conversation focus: ${focus}
 Guidance for this focus: ${hint}`;
 
-      const safeHistory = Array.isArray(history)
-        ? history
-            .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
-            .slice(-10)
-        : [];
-
-      const conversation = [
-        { role: 'system', content: systemPrompt },
-        ...safeHistory,
+      const contents = [
+        ...mapHistoryForGemini(history),
         {
           role: 'user',
-          content: `Page context: ${pageContext?.path || 'unknown-path'} | ${pageContext?.title || 'unknown-title'}\nUser message: ${message}`
+          parts: [{ text: `Page context: ${pageContext?.path || 'unknown-path'} | ${pageContext?.title || 'unknown-title'}\nUser message: ${message}` }]
         }
       ];
 
-      const primaryModel = env.OPENAI_MODEL || 'gpt-5';
-      const fallbackModel = env.OPENAI_FALLBACK_MODEL || 'gpt-4.1-mini';
+      const primaryModel = env.GEMINI_MODEL || 'gemini-2.5-pro';
+      const fallbackModel = env.GEMINI_FALLBACK_MODEL || 'gemini-2.5-flash';
 
-      let resp = await callModel({ env, conversation, model: primaryModel });
+      let resp = await callGemini({ env, model: primaryModel, systemPrompt, contents });
+      let usedModel = primaryModel;
 
-      if (!resp.ok && primaryModel !== fallbackModel) {
-        resp = await callModel({ env, conversation, model: fallbackModel });
+      if (!resp.ok && fallbackModel && fallbackModel !== primaryModel) {
+        resp = await callGemini({ env, model: fallbackModel, systemPrompt, contents });
+        usedModel = fallbackModel;
       }
 
       if (!resp.ok) {
@@ -138,11 +156,10 @@ Guidance for this focus: ${hint}`;
       }
 
       const data = await resp.json();
-      const text =
-        data?.output_text ||
+      const text = extractGeminiText(data) ||
         'I can provide a practical Ontario-focused security recommendation for your site. Call 888-963-5633 or email info@pitbullsecuritysolutions.ca.';
 
-      return new Response(JSON.stringify({ reply: text, focus, model: primaryModel }), {
+      return new Response(JSON.stringify({ reply: text, focus, model: usedModel }), {
         status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
