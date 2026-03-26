@@ -1,80 +1,124 @@
 (function () {
-  const knowledge = {
-    "access control": "We install commercial access control with card/fob/mobile credentials, door schedules, and audit logs across Newmarket and York Region.",
-    "camera": "We design and install surveillance systems using Axis, Dahua, Speco, and GeoVision with remote viewing and retention planning.",
-    "alarm": "We implement intrusion alarm systems with zoning, after-hours automation, and escalation workflows.",
-    "intercom": "We install audio/video intercom and door entry systems integrated with access control for secure visitor workflows.",
-    "wiring": "We provide structured low-voltage wiring (Cat6/Cat6A), patching, and expansion-ready infrastructure.",
-    "automation": "We integrate smart automation and live monitoring workflows so cameras, access, and alarms work together."
+  const business = {
+    name: "Pitbull Security Solutions Ltd.",
+    phone: "888-963-5633",
+    phoneHref: "tel:8889635633",
+    email: "info@pitbullsecuritysolutions.ca",
+    emailHref: "mailto:info@pitbullsecuritysolutions.ca",
+    address: "925 Isaac Phillips Way, Newmarket, ON L3X 0M7",
+    areas: ["newmarket", "aurora", "richmond hill", "east gwillimbury", "bradford", "georgina", "keswick", "vaughan"]
   };
 
-  const root = document.createElement('div');
-  root.className = 'chat-widget';
+  const responses = {
+    access_control: "Pitbull specializes in commercial-first access control: card/fob/mobile credentials, door schedules, role-based permissions, and audit-ready event logs.",
+    cameras: "For camera systems, we design coverage maps and deploy Axis, Dahua, Speco, and GeoVision solutions with remote visibility and retention planning.",
+    alarms: "Alarm systems are designed around your risk profile: intrusion zoning, after-hours logic, mobile alerts, and escalation workflows.",
+    intercom: "Our intercom/door entry systems tie directly into access control and cameras for secure visitor verification and controlled unlock workflows.",
+    wiring: "Structured wiring includes Cat6/Cat6A low-voltage runs, rack/patch organization, and expansion-ready infrastructure for long-term reliability.",
+    automation: "Automation/monitoring connects access, alarms, and cameras into one practical workflow, including live video monitoring strategies.",
+    areas: "Pitbull serves Newmarket, Aurora, Richmond Hill, East Gwillimbury, Bradford, Georgina/Keswick, and Vaughan.",
+    consultation: "Consultation flow: 1) site + risk review, 2) scope and system design, 3) installation plan, 4) commissioning + user handoff.",
+    pricing: "Pricing is scoped to door count, camera count, wiring complexity, and integration depth. Best next step is a consultation for an accurate quote.",
+    contact: `You can reach ${business.name} at ${business.phone} or ${business.email}.`,
+    fallback: "I can answer questions about access control, cameras, alarms, intercom, structured wiring, automation, service areas, and consultation steps. If you want, I can connect you directly now."
+  };
+
+  const intents = [
+    { key: "access_control", terms: ["access", "card", "credential", "door control", "fob", "reader"] },
+    { key: "cameras", terms: ["camera", "cctv", "surveillance", "nvr", "video"] },
+    { key: "alarms", terms: ["alarm", "intrusion", "sensor", "alert"] },
+    { key: "intercom", terms: ["intercom", "door entry", "doorbell", "visitor"] },
+    { key: "wiring", terms: ["wiring", "cat6", "cabling", "low voltage", "network cable"] },
+    { key: "automation", terms: ["automation", "smart", "monitoring", "integrated"] },
+    { key: "consultation", terms: ["consultation", "assessment", "site visit", "appointment", "book"] },
+    { key: "pricing", terms: ["price", "cost", "quote", "estimate", "budget"] },
+    { key: "contact", terms: ["phone", "email", "contact", "address", "call"] }
+  ];
+
+  const root = document.createElement("div");
+  root.className = "chat-widget";
   root.innerHTML = `
-    <button class="chat-toggle" aria-label="Open chat support">Need help?</button>
+    <button class="chat-toggle" aria-label="Open chat support">Chat with Pitbull</button>
     <section class="chat-panel" hidden>
       <header><strong>Pitbull Assistant</strong><button class="chat-close" aria-label="Close chat">×</button></header>
       <div class="chat-body">
-        <p class="bot">Hi! Ask about services, coverage, pricing process, or timelines.</p>
+        <p class="bot">Hi — I’m the Pitbull assistant. I can help with services, areas, project process, and pricing guidance.</p>
       </div>
       <form class="chat-form">
-        <input type="text" name="q" placeholder="Type your question..." required />
+        <input type="text" name="q" placeholder="Ask about your project..." required />
         <button type="submit">Send</button>
       </form>
       <div class="chat-escalate">
-        <a href="tel:8889635633">Call 888-963-5633</a>
-        <a href="mailto:info@pitbullsecuritysolutions.ca?subject=Website%20Chat%20Escalation">Escalate to Team</a>
+        <a href="${business.phoneHref}">Call ${business.phone}</a>
+        <a href="mailto:${business.email}?subject=Website%20Chat%20Escalation">Escalate to Team</a>
       </div>
     </section>
   `;
 
   document.body.appendChild(root);
 
-  const panel = root.querySelector('.chat-panel');
-  const body = root.querySelector('.chat-body');
-  root.querySelector('.chat-toggle').addEventListener('click', () => panel.hidden = false);
-  root.querySelector('.chat-close').addEventListener('click', () => panel.hidden = true);
+  const panel = root.querySelector(".chat-panel");
+  const body = root.querySelector(".chat-body");
+  const toggle = root.querySelector(".chat-toggle");
+  const close = root.querySelector(".chat-close");
+  const form = root.querySelector(".chat-form");
 
-  root.querySelector('.chat-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const input = e.target.q;
-    const text = input.value.trim();
-    if (!text) return;
+  toggle.addEventListener("click", () => (panel.hidden = false));
+  close.addEventListener("click", () => (panel.hidden = true));
 
-    const user = document.createElement('p');
-    user.className = 'user';
-    user.textContent = text;
-    body.appendChild(user);
+  function detectAreaQuestion(text) {
+    return business.areas.some((a) => text.includes(a));
+  }
 
-    const lower = text.toLowerCase();
-    let answer = "I can help with access control, cameras, alarms, intercom, wiring, automation, service areas, and consultation process.";
-
-    for (const key of Object.keys(knowledge)) {
-      if (lower.includes(key)) answer = knowledge[key];
+  function detectIntent(text) {
+    for (const intent of intents) {
+      if (intent.terms.some((term) => text.includes(term))) return intent.key;
     }
+    if (detectAreaQuestion(text) || text.includes("service area") || text.includes("where")) return "areas";
+    return "fallback";
+  }
 
-    if (lower.includes('price') || lower.includes('cost') || lower.includes('quote')) {
-      answer = "Pricing depends on site layout and scope. For accurate pricing, request a consultation and we’ll provide a tailored quote.";
-    }
+  function maybeEscalate(text) {
+    return ["human", "agent", "owner", "complex", "urgent", "emergency", "can\'t", "cannot"].some((w) => text.includes(w));
+  }
 
-    if (lower.includes('area') || lower.includes('where')) {
-      answer = "We serve Newmarket, Aurora, Richmond Hill, East Gwillimbury, Bradford, Georgina/Keswick, and Vaughan.";
-    }
-
-    const bot = document.createElement('p');
-    bot.className = 'bot';
-    bot.textContent = answer;
-    body.appendChild(bot);
-
-    const shouldEscalate = lower.includes('human') || lower.includes('agent') || lower.includes('owner') || lower.includes('complex');
-    if (shouldEscalate) {
-      const esc = document.createElement('p');
-      esc.className = 'bot';
-      esc.innerHTML = 'I’ll hand this off. Please call <a href="tel:8889635633">888-963-5633</a> or email <a href="mailto:info@pitbullsecuritysolutions.ca">info@pitbullsecuritysolutions.ca</a>.';
-      body.appendChild(esc);
-    }
-
+  function addMessage(type, htmlOrText, isHtml = false) {
+    const p = document.createElement("p");
+    p.className = type;
+    if (isHtml) p.innerHTML = htmlOrText;
+    else p.textContent = htmlOrText;
+    body.appendChild(p);
     body.scrollTop = body.scrollHeight;
-    input.value = '';
+  }
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const input = form.q;
+    const raw = input.value.trim();
+    if (!raw) return;
+
+    addMessage("user", raw);
+
+    const text = raw.toLowerCase();
+    const intent = detectIntent(text);
+    addMessage("bot", responses[intent] || responses.fallback);
+
+    if (intent === "consultation") {
+      addMessage(
+        "bot",
+        `To get started, contact <a href="${business.phoneHref}">${business.phone}</a> or email <a href="${business.emailHref}">${business.email}</a>.`,
+        true
+      );
+    }
+
+    if (maybeEscalate(text)) {
+      addMessage(
+        "bot",
+        `No problem — I’ll escalate this. Call <a href="${business.phoneHref}">${business.phone}</a> or email <a href="${business.emailHref}">${business.email}</a> and mention your website chat message.`,
+        true
+      );
+    }
+
+    input.value = "";
   });
 })();
