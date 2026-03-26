@@ -59,11 +59,13 @@
     <div class="container">
       <div class="card form-card">
         <h2>Request a Consultation</h2>
-        <p class="section-lead">Send your project details and our team will contact you.</p>
+        <p class="section-lead">Send your project details and our team will contact you. Form submissions are routed to <strong>info@pitbullsecuritysolutions.ca</strong> and redirect to a branded confirmation page on pitbullsecuritysolutions.ca.</p>
         <form class="contact-form" action="https://formsubmit.co/info@pitbullsecuritysolutions.ca" method="POST">
+          <input type="hidden" name="_template" value="table">
+          <input type="text" name="_honey" style="display:none">
           <input type="hidden" name="_captcha" value="false">
           <input type="hidden" name="_subject" value="New Website Lead - Pitbull Security Solutions">
-          <input type="hidden" name="_next" value="https://pitbullsecuritysolutions.ca/contact.html">
+          <input type="hidden" name="_next" value="https://pitbullsecuritysolutions.ca/thank-you.html">
           <label>Full Name<input type="text" name="name" required></label>
           <label>Phone Number<input type="tel" name="phone" required></label>
           <label>Email Address<input type="email" name="email" required></label>
