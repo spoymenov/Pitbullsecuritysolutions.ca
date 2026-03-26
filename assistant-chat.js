@@ -16,7 +16,7 @@
     intercom: "Intercom systems are integrated with access control and video verification for secure entry.",
     wiring: "Structured Cat6/Cat6A low-voltage wiring supports security performance and future expansion.",
     automation: "Automation connects access, alarms, and cameras into one practical workflow.",
-    areas: "We serve York Region plus GTA project coverage: Newmarket, Aurora, Richmond Hill, East Gwillimbury, Bradford, Georgina/Keswick, Vaughan, Markham, Toronto, Mississauga, and Brampton.",
+    areas: "We serve Ontario projects in York Region + GTA: Newmarket, Aurora, Richmond Hill, East Gwillimbury, Bradford, Georgina/Keswick, Vaughan, Markham, Toronto, Mississauga, and Brampton.",
     fallback: "I can help with services, pricing process, and coverage areas. If needed, I can connect you directly with Pitbull now."
   };
 

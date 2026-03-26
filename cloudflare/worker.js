@@ -83,12 +83,12 @@ Business facts:
 - Phone: 888-963-5633
 - Email: info@pitbullsecuritysolutions.ca
 - Address: 925 Isaac Phillips Way, Newmarket, ON L3X 0M7
-- Service areas: York Region core (Newmarket, Aurora, Richmond Hill, East Gwillimbury, Bradford, Georgina/Keswick) + GTA project coverage (Vaughan, Markham, Toronto, Mississauga, Brampton)
+- Service areas: Ontario only, with York Region core (Newmarket, Aurora, Richmond Hill, East Gwillimbury, Bradford, Georgina/Keswick) + GTA project coverage (Vaughan, Markham, Toronto, Mississauga, Brampton)
 - Services: commercial access control, camera systems, alarm systems, intercom/door entry, structured low-voltage wiring, automation + live monitoring
 
 Style requirements (important):
 1) Do not be generic. Mention at least one concrete service detail tied to the user question.
-2) When relevant, reference a specific local area from the list above.
+2) When relevant, reference a specific local area from Ontario list above.
 3) Keep it concise (2-4 short paragraphs or bullet points).
 4) Always end with a clear next step (site visit/consultation) + phone/email CTA.
 5) If user asks legal/fire-code/compliance questions, advise contacting a licensed professional and the Pitbull team.
